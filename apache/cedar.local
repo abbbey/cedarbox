@@ -1,0 +1,70 @@
+# Root Site
+<VirtualHost *:80>
+	ServerName home.cedar.local
+	Redirect permanent / https://cedar.local/
+</VirtualHost>
+<VirtualHost *:443>
+    ServerName home.cedar.local
+    ServerAdmin webmaster@domainname1.dom
+    DocumentRoot /var/www/html
+
+    SSLEngine on
+    SSLCertificateFile "/etc/apache2/ssl/server.crt"
+    SSLCertificateKeyFile "/etc/apache2/ssl/server.key"
+
+    LogLevel info ssl:warn
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    <Proxy *>
+        Order allow,deny
+        Allow from all
+    </Proxy>
+    AllowEncodedSlashes NoDecode
+</VirtualHost>
+
+
+# Jellyfin
+<VirtualHost *:80>
+    ServerName jellyfin.cedar.local
+    <Proxy *>
+        Order allow,deny
+        Allow from all
+    </Proxy>
+    ProxyPass "/" "http://localhost:8096/"
+    ProxyPassReverse "/" "http://localhost:8096/"
+</VirtualHost>
+
+
+# Nextcloud
+<VirtualHost *:80>
+	ServerName nc.cedar.local
+	Redirect permanent / https://nc.cedar.local/
+</VirtualHost>
+<VirtualHost *:443>
+    ServerName nc.cedar.local
+
+	SSLEngine on
+    SSLCertificateFile "/etc/apache2/ssl/server.crt"
+    SSLCertificateKeyFile "/etc/apache2/ssl/server.key"
+
+    <IfModule mod_headers.c>
+        Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+    </IfModule>
+
+    <Proxy *>
+        Order allow,deny
+        Allow from all
+    </Proxy>
+	<Location />
+		ProxyPass "http://localhost:8080/"
+		ProxyPassReverse "http://localhost:8080/"
+	</Location>
+</VirtualHost>
+
+
+
+
+
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
