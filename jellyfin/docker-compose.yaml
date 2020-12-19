@@ -1,0 +1,25 @@
+# docker-compose file for starting a jellyfin instance.
+# from https://jellyfin.org/docs/general/administration/installing.html
+#
+# Before running:
+# 1. Create directories /var/www/jellyfin/config
+#                                    /var/www/jellyfin/cache
+#                                    /var/www/jellyfin/jellyfin_media
+#    In practice jellyfin_media is symlink to storage directory
+# 2. Pull jellyfin image:
+#       docker pull jellyfin/jellyfin
+# 3. Run from this directory:
+#       docker compose up
+version: "3"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: "host"
+    volumes:
+      - /var/www/jellyfin/config:/config
+      - /var/www/jellyfin/cache:/cache
+      - /var/www/jellyfin/jellyfin_media:/media
+    restart: "unless-stopped"
+
