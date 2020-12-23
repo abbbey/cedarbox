@@ -4,6 +4,9 @@
 # Expects credential files in cwd as used by the docker-compose file.
 #
 # Copyright 2020 Abigail Schubert
+# This work is licensed under the terms of the GNU General Public License v3
+# For a copy, see <https://www.gnu.org/licenses/>
+
 set -o errexit
 set -o nounset
 

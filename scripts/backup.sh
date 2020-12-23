@@ -10,6 +10,8 @@
 # This uses a credentials file for accessing the nextcloud db. See below.
 #
 # Copyright 2020 Abigail Schubert
+# This work is licensed under the terms of the GNU General Public License v3
+# For a copy, see <https://www.gnu.org/licenses/>
 set -o nounset
 
 # URSA details
