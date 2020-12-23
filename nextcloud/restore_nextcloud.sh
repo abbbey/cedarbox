@@ -15,9 +15,9 @@ NC_DATA_BACKUP=/media/pleiades/nc_next
 NC_DATA_DIR=/media/pleiades/nextcloud
 
 # Read credentials (and strip any whitespace using xargs)
-MYSQL_ROOT_PW=$(cat mysql_root_password.txt | xargs)
-NC_ADMIN_USER="'"$(cat nextcloud_admin_user.txt | xargs)"'@'localhost'"
-NC_ADMIN_PASSWORD="'"$(cat nextcloud_admin_password.txt | xargs)"'"
+MYSQL_ROOT_PW=$(xargs < mysql_root_password.txt)
+NC_ADMIN_USER="'"$(xargs < nextcloud_admin_user.txt)"'@'localhost'"
+NC_ADMIN_PASSWORD="'"$(xargs < nextcloud_admin_password.txt)"'"
 
 APP_CONTAINER=nextcloud_app_1
 DB_CONTAINER=nextcloud_db_1
@@ -41,7 +41,7 @@ exec_occ() {
 
 set_maintenance_mode() {
     # Enable/Disable maintenance mode. Pass in 'on' or 'off'
-    exec_occ maintenance:mode --${1}
+    exec_occ maintenance:mode --"$1"
 }
 
 # Add trailing slash on source dir or rsync will screw it up
