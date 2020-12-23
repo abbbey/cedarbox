@@ -1,0 +1,74 @@
+# docker-compose file for starting a nextcloud instance.
+# from https://jellyfin.org/docs/general/administration/installing.html
+#
+# Before running:
+# 1. Create data directory (/media/pleiades/nextcloud)
+#    In practice jellyfin_media is symlink to storage directory
+# 2. Pull nextcloud image:
+#       docker pull nextcloud/nextcloud
+# 3. Run from this directory:
+#       docker compose up
+version: "3.6"
+
+volumes:
+  nextcloud:
+  db:
+
+services:
+  db:
+    image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --log-bin --binlog-format=ROW
+    restart: always
+    healthcheck:
+        # Healthcheck from Nicolas Kuttler
+        # https://kuttler.eu/code/docker-compose-mariadb-mysql-healthcheck/
+        test: "mysql -u $$(cat $${MYSQL_USER_FILE})
+               -p$$(cat $${MYSQL_PASSWORD_FILE})
+               --execute \"SHOW DATABASES;\""
+        interval: 3s
+        timeout: 1s
+        retries: 5
+    volumes:
+        - db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_pw
+      MYSQL_DATABASE: "nextcloud"
+      MYSQL_USER_FILE: /run/secrets/nc_admin_user
+      MYSQL_PASSWORD_FILE: /run/secrets/nc_admin_pw
+    secrets:
+      - mysql_root_pw
+      - nc_admin_user
+      - nc_admin_pw
+
+  app:
+    build: ./app
+    ports:
+      - 8080:80
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+      - /media/pleiades/nextcloud:/media/data
+    environment:
+      NEXTCLOUD_ADMIN_USER_FILE: /run/secrets/nc_admin_user
+      NEXTCLOUD_ADMIN_PASSWORD_FILE: /run/secrets/nc_admin_pw
+      NEXTCLOUD_DATA_DIR: /media/data
+      MYSQL_HOST: db
+      MYSQL_DATABASE: "nextcloud"
+      MYSQL_USER_FILE: /run/secrets/nc_admin_user
+      MYSQL_PASSWORD_FILE: /run/secrets/nc_admin_pw
+    secrets:
+      - nc_admin_user
+      - nc_admin_pw
+
+secrets:
+    nc_admin_user:
+      file: ./nextcloud_admin_user.txt
+    nc_admin_pw:
+      file: ./nextcloud_admin_password.txt
+    mysql_root_pw:
+      file: ./mysql_root_password.txt
