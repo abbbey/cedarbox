@@ -1,13 +1,6 @@
 # docker-compose file for starting a nextcloud instance.
-# from https://jellyfin.org/docs/general/administration/installing.html
-#
-# Before running:
-# 1. Create data directory (/media/pleiades/nextcloud)
-#    In practice jellyfin_media is symlink to storage directory
-# 2. Pull nextcloud image:
-#       docker pull nextcloud/nextcloud
-# 3. Run from this directory:
-#       docker compose up
+# Copyright Abigail Schubert 2020
+
 version: "3.6"
 
 volumes:
@@ -67,8 +60,8 @@ services:
 
 secrets:
     nc_admin_user:
-      file: ./nextcloud_admin_user.txt
+      file: ./_secret_nc_admin_user.txt
     nc_admin_pw:
-      file: ./nextcloud_admin_password.txt
+      file: ./_secret_nc_admin_pw.txt
     mysql_root_pw:
-      file: ./mysql_root_password.txt
+      file: ./_secret_mysql_root_pw.txt

@@ -15,9 +15,9 @@ NC_DATA_BACKUP=/media/pleiades/nc_next
 NC_DATA_DIR=/media/pleiades/nextcloud
 
 # Read credentials (and strip any whitespace using xargs)
-MYSQL_ROOT_PW=$(xargs < mysql_root_password.txt)
-NC_ADMIN_USER="'"$(xargs < nextcloud_admin_user.txt)"'@'localhost'"
-NC_ADMIN_PASSWORD="'"$(xargs < nextcloud_admin_password.txt)"'"
+MYSQL_ROOT_PW=$(xargs < _secret_mysql_root_pw.txt)
+NC_ADMIN_USER="'"$(xargs < _secret_nc_admin_user.txt)"'@'localhost'"
+NC_ADMIN_PASSWORD="'"$(xargs < _secret_nc_admin_pw.txt)"'"
 
 APP_CONTAINER=nextcloud_app_1
 DB_CONTAINER=nextcloud_db_1
