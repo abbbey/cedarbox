@@ -3,12 +3,14 @@
 #
 # Before running:
 # 1. Create directories /var/www/jellyfin/config
-#                                    /var/www/jellyfin/cache
-#                                    /var/www/jellyfin/jellyfin_media
+#                       /var/www/jellyfin/cache
+#                       /var/www/jellyfin/jellyfin_media
 #    In practice jellyfin_media is symlink to storage directory
-# 2. Pull jellyfin image:
+# 2. Chown these directories to the uid:gid used by jellyfin container (which
+#    should be remapped via dockremap - see /etc/subuid)
+# 3. Pull jellyfin image:
 #       docker pull jellyfin/jellyfin
-# 3. Run from this directory:
+# 4. Run from this directory:
 #       docker compose up
 version: "3"
 services:
@@ -16,7 +18,8 @@ services:
     image: jellyfin/jellyfin
     container_name: jellyfin
     user: 1000:1000
-    network_mode: "host"
+    ports:
+      - 8096:8096
     volumes:
       - /var/www/jellyfin/config:/config
       - /var/www/jellyfin/cache:/cache
