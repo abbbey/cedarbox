@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # This script will restore a Nextcloud backup to a fresh NC container.
 # Requires a mysql data dump, created from old nc instance in maintenance mode.
-# Expects credential files in cwd as used by the docker-compose file.
+# Expects _secret files in cwd as used by the docker-compose file.
 #
 # Copyright 2020 Abigail Schubert
 # This work is licensed under the terms of the GNU General Public License v3
@@ -17,14 +17,25 @@ MYSQL_DUMP="./mysql_dump.bak"
 NC_DATA_BACKUP=/media/pleiades/nc_next
 NC_DATA_DIR=/media/pleiades/nextcloud
 
-# Read credentials (and strip any whitespace using xargs)
-MYSQL_ROOT_PW=$(xargs < _secret_mysql_root_pw.txt)
-NC_ADMIN_USER="'"$(xargs < _secret_nc_admin_user.txt)"'@'localhost'"
-NC_ADMIN_PASSWORD="'"$(xargs < _secret_nc_admin_pw.txt)"'"
-
 APP_CONTAINER=nextcloud_app_1
 DB_CONTAINER=nextcloud_db_1
 WWW_DATA_USER=33
+
+get_secret() {
+    # Get secret from file
+    local SECRET_FILE=$1
+    local KEY=$2
+    if [[ ! -e $SECRET_FILE ]]; then
+        echo "ERROR: Could not read secret file $SECRET_FILE" >&2
+        exit 1
+    fi
+    local VALUE=$(awk -F= -v key="$KEY" '$1 == key { print $2 }' $1)
+    if [[ -z $VALUE ]]; then
+        echo "ERROR: Could not find secret \"$KEY\" in $SECRET_FILE" >&2
+        exit 1
+    fi
+    echo $VALUE
+}
 
 echo_e() {
     # Echo using backslash escapes
@@ -46,6 +57,11 @@ set_maintenance_mode() {
     # Enable/Disable maintenance mode. Pass in 'on' or 'off'
     exec_occ maintenance:mode --"$1"
 }
+
+MYSQL_ROOT_PW=$(get_secret ./_secrets_mysql.txt "MYSQL_ROOT_PASSWORD")
+NC_ADMIN_USER="'"$(get_secret ./_secrets_nextcloud.txt "NEXTCLOUD_ADMIN_USER")"'"
+NC_ADMIN_PW="'"$(get_secret ./_secrets_nextcloud.txt "NEXTCLOUD_ADMIN_PASSWORD")"'"
+
 
 # Add trailing slash on source dir or rsync will screw it up
 i=$((${#NC_DATA_BACKUP}-1))
@@ -85,7 +101,7 @@ echo_e "\nAdding back nc_admin privileges"
 # Read nc username and password (and strip any whitespace using xargs)
 # Two layers of \" so that the single-quotes persist thru all the variable expansions
 exec_mysql "GRANT ALL PRIVILEGES ON nextcloud.* TO \"\"${NC_ADMIN_USER}\"\"
-            IDENTIFIED BY \"\"${NC_ADMIN_PASSWORD}\"\";"
+            IDENTIFIED BY \"\"${NC_ADMIN_PW}\"\";"
 
 echo_e "\nFixing missing indices in nc database"
 exec_occ db:add-missing-indices
