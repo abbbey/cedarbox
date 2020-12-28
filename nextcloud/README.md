@@ -13,7 +13,7 @@ has permissions on this location.
 
 Second, create the two credential files for the app, used to set environment
 variables within the docker containers. Use shell syntax of VARIABLE=VALUE, with
-one variable per line. Create:
+one variable per line. See `example_secrets_mysql.txt`. Create:
 *  `./_secrets_mysql.txt` containing assignments for the following vars:
    * `MYSQL_ROOT_PASSWORD`
    * `MYSQL_USER`
