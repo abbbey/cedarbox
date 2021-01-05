@@ -19,9 +19,14 @@ mount_ursa() {
         exit 1
     fi
 
-    echo "Found ursa. Decrypting and mounting to $URSA_MOUNT_POINT"
-    sudo cryptsetup luksOpen "$LUKS_DEV" ursa
-    sudo mount "$MAPPED_DEV" "$URSA_MOUNT_POINT"
+    if [[ $(df $URSA_MOUNT_POINT | grep $MAPPED_DEV) ]]; then
+        echo "Ursa is already mounted"
+    else
+        echo "Found ursa. Decrypting and mounting to $URSA_MOUNT_POINT"
+        sudo cryptsetup luksOpen "$LUKS_DEV" ursa
+        sudo mount "$MAPPED_DEV" "$URSA_MOUNT_POINT"
+    fi
+
 }
 
 
